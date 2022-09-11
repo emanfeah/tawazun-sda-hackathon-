@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sql
+  namespace: eman-tawazun
+  labels:
+    app: sql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sql
+  template:
+    metadata:
+      labels:
+        app: sql
+    spec: #this pressint volume
+      volumes:
+        - name: sql-pv-claim
+          persistentVolumeClaim:
+             claimName: sql-pv-claim
+      containers:
+        - image: mysql
+          name: mysql
+          env:
+          - name: MYSQL_USER
+            value: "mysql"
+          - name:  MYSQL_PASSWORD
+            value: "mysql"
+          - name: MYSQL_HOST_AUTH_METHOD
+            value: trust
+          ports:
+          - containerPort: 3306
+          volumeMounts: #Create persistent volumes to store the data for the Postgres database
+            - mountPath: /var/lib/mysql
+              name: sql-pv-claim
